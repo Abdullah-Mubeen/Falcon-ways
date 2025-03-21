@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -18,7 +18,13 @@ import {
   Phone,
   Mail,
   MapPin,
-  Send
+  Send,
+  Users,
+  Building2,
+  Briefcase,
+  CheckCircle2,
+  Award,
+  LineChart
 } from 'lucide-react';
 
 export default function Home() {
@@ -26,11 +32,19 @@ export default function Home() {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [formStep, setFormStep] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
+    company: '',
+    service: '',
+    budget: ''
   });
+
+  const { scrollYProgress } = useScroll();
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
   const slides = [
     {
@@ -59,10 +73,21 @@ export default function Home() {
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
-    setIsContactOpen(false);
-    setFormData({ name: '', email: '', message: '' });
+    if (formStep < 2) {
+      setFormStep(formStep + 1);
+    } else {
+      console.log(formData);
+      setIsContactOpen(false);
+      setFormStep(0);
+      setFormData({
+        name: '',
+        email: '',
+        message: '',
+        company: '',
+        service: '',
+        budget: ''
+      });
+    }
   };
 
   const menuVariants = {
@@ -98,6 +123,115 @@ export default function Home() {
       }
     }
   };
+
+  const formSteps = [
+    {
+      title: "Basic Information",
+      fields: (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Name
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="Your name"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="your@email.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Company
+            </label>
+            <input
+              type="text"
+              value={formData.company}
+              onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="Your company name"
+              required
+            />
+          </div>
+        </>
+      )
+    },
+    {
+      title: "Project Details",
+      fields: (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Service Interested In
+            </label>
+            <select
+              value={formData.service}
+              onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              required
+            >
+              <option value="">Select a service</option>
+              <option value="audiovisual">Audiovisual Systems</option>
+              <option value="it">IT & Networking</option>
+              <option value="security">Security Systems</option>
+              <option value="electrical">Electrical Supplies</option>
+              <option value="industrial">Industrial Materials</option>
+              <option value="digital">Digital Services</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Budget Range
+            </label>
+            <select
+              value={formData.budget}
+              onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              required
+            >
+              <option value="">Select budget range</option>
+              <option value="small">$10,000 - $50,000</option>
+              <option value="medium">$50,000 - $200,000</option>
+              <option value="large">$200,000+</option>
+            </select>
+          </div>
+        </>
+      )
+    },
+    {
+      title: "Additional Information",
+      fields: (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Project Details
+          </label>
+          <textarea
+            value={formData.message}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+            rows={6}
+            placeholder="Tell us about your project requirements and timeline..."
+            required
+          />
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -194,13 +328,13 @@ export default function Home() {
               animate="visible"
               exit="hidden"
               variants={contactModalVariants}
-              className="bg-white text-black rounded-3xl w-full max-w-2xl overflow-hidden"
+              className="bg-white text-black rounded-3xl w-full max-w-4xl overflow-hidden"
             >
               <div className="flex flex-col md:flex-row">
                 {/* Contact Info */}
                 <div className="w-full md:w-2/5 bg-black text-white p-8 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-2xl font-light mb-8">Contact Info</h3>
+                    <h3 className="text-2xl font-light mb-8">Let's Connect</h3>
                     <div className="space-y-6">
                       <div className="flex items-center space-x-4">
                         <Phone className="h-5 w-5 text-white/60" />
@@ -215,6 +349,37 @@ export default function Home() {
                         <span>Eastern Province, Saudi Arabia</span>
                       </div>
                     </div>
+
+                    <div className="mt-12">
+                      <h4 className="text-lg font-light mb-4">Progress</h4>
+                      <div className="space-y-2">
+                        {formSteps.map((step, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2"
+                          >
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                index === formStep
+                                  ? 'bg-white'
+                                  : index < formStep
+                                  ? 'bg-white/60'
+                                  : 'bg-white/20'
+                              }`}
+                            />
+                            <span
+                              className={
+                                index === formStep
+                                  ? 'text-white'
+                                  : 'text-white/60'
+                              }
+                            >
+                              {step.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={() => setIsContactOpen(false)}
@@ -227,57 +392,46 @@ export default function Home() {
 
                 {/* Contact Form */}
                 <div className="w-full md:w-3/5 p-8">
-                  <h3 className="text-3xl font-light mb-6">Get in Touch</h3>
-                  <form onSubmit={handleContactSubmit} className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                        placeholder="Your name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                        placeholder="your@email.com"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Message
-                      </label>
-                      <textarea
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                        rows={4}
-                        placeholder="Your message"
-                        required
-                      />
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      className="w-full py-4 bg-black text-white rounded-xl flex items-center justify-center space-x-2 hover:bg-black/90 transition-colors"
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={formStep}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="h-full"
                     >
-                      <span>Send Message</span>
-                      <Send className="h-5 w-5" />
-                    </motion.button>
-                  </form>
+                      <h3 className="text-3xl font-light mb-6">
+                        {formSteps[formStep].title}
+                      </h3>
+                      <form onSubmit={handleContactSubmit} className="space-y-6">
+                        {formSteps[formStep].fields}
+                        <div className="flex justify-between items-center">
+                          {formStep > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setFormStep(formStep - 1)}
+                              className="px-6 py-3 text-black hover:text-gray-700 transition-colors"
+                            >
+                              Back
+                            </button>
+                          )}
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="submit"
+                            className="px-8 py-4 bg-black text-white rounded-xl flex items-center space-x-2 hover:bg-black/90 transition-colors ml-auto"
+                          >
+                            <span>
+                              {formStep === formSteps.length - 1
+                                ? 'Submit'
+                                : 'Next'}
+                            </span>
+                            <ArrowRight className="h-4 w-4" />
+                          </motion.button>
+                        </div>
+                      </form>
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
             </motion.div>
@@ -286,7 +440,10 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Hero Section with Slider */}
-      <section className="relative h-screen overflow-hidden">
+      <motion.section
+        style={{ opacity, scale }}
+        className="relative h-screen overflow-hidden"
+      >
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -344,8 +501,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
+   
       {/* Services Section */}
       <section className="py-32 bg-white text-black">
         <div className="container mx-auto px-6">
